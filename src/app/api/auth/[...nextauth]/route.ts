@@ -37,7 +37,7 @@ export const authOptions = {
     signIn: "/login",
   },
   session: {
-    strategy: "jwt",
+    strategy: "jwt" as "jwt",
   },
   callbacks: {
     async jwt({ token, user }: { token: JWT, user: User }) {
