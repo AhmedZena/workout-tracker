@@ -1,4 +1,5 @@
-import NextAuth from "next-auth"
+import NextAuth, { Session } from "next-auth"
+import { JWT } from "next-auth/jwt"
 import CredentialsProvider from "next-auth/providers/credentials"
 import bcrypt from "bcryptjs"
 import db from "@/lib/db"
@@ -33,13 +34,13 @@ export const authOptions = {
     strategy: "jwt",
   },
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user }: { token: JWT, user: any }) {
       if (user) {
         token.id = user.id
       }
       return token
     },
-    async session({ session, token }) {
+    async session({ session, token }: { session: Session, token: JWT }) {
       if (token) {
         session.user.id = token.id
       }
