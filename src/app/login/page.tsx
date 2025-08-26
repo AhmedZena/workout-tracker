@@ -1,0 +1,73 @@
+'use client'
+
+import { signIn } from "next-auth/react"
+import { useState } from "react"
+import { useRouter } from "next/navigation"
+import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+
+export default function LoginPage() {
+  const [username, setUsername] = useState("")
+  const [password, setPassword] = useState("")
+  const [error, setError] = useState("")
+  const router = useRouter()
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setError("")
+
+    const result = await signIn("credentials", {
+      redirect: false,
+      username,
+      password,
+    })
+
+    if (result?.error) {
+      setError("Invalid username or password.")
+    } else {
+      router.push("/")
+    }
+  }
+
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-4">
+      <Card className="w-full max-w-md bg-slate-800/50 border-slate-700 text-white">
+        <CardHeader>
+          <CardTitle className="text-center text-3xl font-bold">Login</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <label className="text-sm font-medium text-slate-300 mb-2 block">Username</label>
+              <Input
+                type="text"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                placeholder="Enter your username"
+                className="bg-slate-700 border-slate-600 text-white"
+                required
+              />
+            </div>
+            <div>
+              <label className="text-sm font-medium text-slate-300 mb-2 block">Password</label>
+              <Input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Enter your password"
+                className="bg-slate-700 border-slate-600 text-white"
+                required
+              />
+            </div>
+            {error && <p className="text-red-400 text-sm text-center">{error}</p>}
+            <Button type="submit" className="w-full bg-purple-600 hover:bg-purple-700">
+              Login
+            </Button>
+          </form>
+        </CardContent>
+      </Card>
+    </div>
+  )
+}
+
