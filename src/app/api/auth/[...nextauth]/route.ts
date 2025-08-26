@@ -4,6 +4,12 @@ import CredentialsProvider from "next-auth/providers/credentials"
 import bcrypt from "bcryptjs"
 import db from "@/lib/db"
 
+interface User {
+  id: string;
+  username: string;
+  password?: string;
+}
+
 export const authOptions = {
   providers: [
     CredentialsProvider({
@@ -34,7 +40,7 @@ export const authOptions = {
     strategy: "jwt",
   },
   callbacks: {
-    async jwt({ token, user }: { token: JWT, user: any }) {
+    async jwt({ token, user }: { token: JWT, user: User }) {
       if (user) {
         token.id = user.id
       }
