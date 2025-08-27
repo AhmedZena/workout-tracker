@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server"
 import bcrypt from "bcryptjs"
-import db from "@/lib/db"
+import { findUserByUsername, createUser } from "@/lib/users"
 
 export async function POST(request: Request) {
   try {
@@ -10,13 +10,13 @@ export async function POST(request: Request) {
       return NextResponse.json({ message: "Username and password are required" }, { status: 400 })
     }
 
-    const existingUser = db.prepare("SELECT * FROM users WHERE username = ?").get(username)
+    const existingUser = findUserByUsername(username)
     if (existingUser) {
       return NextResponse.json({ message: "User already exists" }, { status: 409 })
     }
 
-    const hashedPassword = bcrypt.hashSync(password, 10)
-    db.prepare("INSERT INTO users (username, password) VALUES (?, ?)").run(username, hashedPassword)
+    const hashedPassword = await bcrypt.hash(password, 10)
+    createUser(username, hashedPassword)
 
     return NextResponse.json({ message: "User registered successfully" }, { status: 201 })
   } catch (error) {
