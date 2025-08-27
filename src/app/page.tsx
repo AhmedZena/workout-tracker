@@ -12,6 +12,28 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import { useSession, signOut } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 
+interface Workout {
+  id: number
+  date: string
+  day: string
+  exercise: string
+  sets: number
+  reps: number
+  weight: number
+  notes: string
+}
+
+interface WorkoutForm {
+  id?: number
+  date: string
+  day: string
+  exercise: string
+  sets: string
+  reps: string
+  weight: string
+  notes: string
+}
+
 export default function Home() {
   const { data: session, status } = useSession()
   const router = useRouter()
@@ -22,8 +44,8 @@ export default function Home() {
     }
   }, [status, router])
 
-  const [workouts, setWorkouts] = useState([])
-  const [formData, setFormData] = useState({
+  const [workouts, setWorkouts] = useState<Workout[]>([])
+  const [formData, setFormData] = useState<WorkoutForm>({
     date: new Date().toISOString().split('T')[0],
     day: '',
     exercise: '',
@@ -32,8 +54,8 @@ export default function Home() {
     weight: '',
     notes: ''
   })
-  const [message, setMessage] = useState({ text: '', type: '' })
-  const [selectedExercise, setSelectedExercise] = useState('')
+  const [message, setMessage] = useState<{ text: string; type: string }>({ text: '', type: '' })
+  const [selectedExercise, setSelectedExercise] = useState<string>('')
 
   // Load workouts from localStorage on component mount
   useEffect(() => {
@@ -52,12 +74,12 @@ export default function Home() {
     }
   }, [workouts, session])
 
-  const showMessage = (text, type = 'success') => {
+  const showMessage = (text: string, type: 'success' | 'error' = 'success') => {
     setMessage({ text, type })
     setTimeout(() => setMessage({ text: '', type: '' }), 3000)
   }
 
-  const handleInputChange = (field, value) => {
+  const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }))
   }
 
@@ -88,7 +110,7 @@ export default function Home() {
     showMessage('Workout added successfully!')
   }
 
-  const deleteWorkout = (id) => {
+  const deleteWorkout = (id: number) => {
     setWorkouts(prev => prev.filter(workout => workout.id !== id))
     showMessage('Workout deleted successfully.')
   }
@@ -119,8 +141,8 @@ export default function Home() {
   }
 
   // Get personal records
-  const getPersonalRecords = () => {
-    const records = {}
+  const getPersonalRecords = (): Workout[] => {
+    const records: Record<string, Workout> = {}
     workouts.forEach(workout => {
       const { exercise, weight } = workout
       if (!records[exercise] || weight > records[exercise].weight) {
