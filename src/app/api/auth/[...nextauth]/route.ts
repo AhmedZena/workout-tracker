@@ -1,14 +1,8 @@
-import NextAuth, { Session } from "next-auth"
+import NextAuth, { Session, User } from "next-auth"
 import { JWT } from "next-auth/jwt"
 import CredentialsProvider from "next-auth/providers/credentials"
 import bcrypt from "bcryptjs"
-import db from "@/lib/db"
-
-interface User {
-  id: string;
-  username: string;
-  password?: string;
-}
+import { findUserByUsername, type DBUser } from "@/lib/users"
 
 export const authOptions = {
   providers: [
@@ -18,16 +12,16 @@ export const authOptions = {
         username: { label: "Username", type: "text" },
         password: { label: "Password", type: "password" },
       },
-      async authorize(credentials, req) {
+      async authorize(credentials) {
         if (!credentials) {
           return null
         }
 
-        const user = db.prepare("SELECT * FROM users WHERE username = ?").get(credentials.username)
+        const user: DBUser | undefined = findUserByUsername(credentials.username)
 
-        if (user && bcrypt.compareSync(credentials.password, user.password)) {
-          return { id: user.id, username: user.username, name: user.username, email: user.username }
-        }
+        if (user && await bcrypt.compare(credentials.password, user.password)) {
+          return { id: String(user.id), username: user.username, name: user.username, email: user.username }
+
         return null
       },
     }),
