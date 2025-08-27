@@ -26,10 +26,9 @@ export const authOptions = {
         const user = db.prepare("SELECT * FROM users WHERE username = ?").get(credentials.username)
 
         if (user && bcrypt.compareSync(credentials.password, user.password)) {
-          return { id: user.id, name: user.username, email: user.username }
-        } else {
-          return null
+          return { id: user.id, username: user.username, name: user.username, email: user.username }
         }
+        return null
       },
     }),
   ],
