@@ -10,11 +10,7 @@ interface User {
   email: string
 }
 
-interface StoredUser {
-  id: string
-  username: string
-  password: string
-}
+// Removed StoredUser interface as it's no longer needed with API-based auth
 
 interface AuthContextType {
   user: User | null
@@ -49,33 +45,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const login = async (username: string, password: string): Promise<{ success: boolean; error?: string }> => {
     try {
-      // Get users from localStorage
-      const storedUsers = localStorage.getItem('workout-tracker-users')
-      if (!storedUsers) {
-        return { success: false, error: 'No users found. Please register first.' }
-      }
+      const response = await fetch('/api/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ username, password }),
+      })
 
-      const users: StoredUser[] = JSON.parse(storedUsers)
-      const user = users.find((u: StoredUser) => u.username === username)
+      const data = await response.json()
 
-      if (!user) {
-        return { success: false, error: 'Invalid username or password.' }
-      }
-
-      // Simple password check (in a real app, you'd want to hash passwords)
-      if (user.password !== password) {
-        return { success: false, error: 'Invalid username or password.' }
+      if (!response.ok) {
+        return { success: false, error: data.message || 'Login failed.' }
       }
 
       // Create user session
       const userSession = {
-        id: user.id,
-        username: user.username,
-        name: user.username,
-        email: user.username
+        id: data.user.id,
+        username: data.user.username,
+        name: data.user.username,
+        email: data.user.username
       }
 
-      // Store user in localStorage
+      // Store user in localStorage for client-side state management
       localStorage.setItem('workout-tracker-user', JSON.stringify(userSession))
       setUser(userSession)
       
@@ -89,27 +81,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const register = async (username: string, password: string): Promise<{ success: boolean; error?: string }> => {
     try {
-      // Get existing users from localStorage
-      const storedUsers = localStorage.getItem('workout-tracker-users')
-      const users: StoredUser[] = storedUsers ? JSON.parse(storedUsers) : []
+      const response = await fetch('/api/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ username, password }),
+      })
 
-      // Check if user already exists
-      if (users.find((u: StoredUser) => u.username === username)) {
-        return { success: false, error: 'User already exists.' }
+      const data = await response.json()
+
+      if (!response.ok) {
+        return { success: false, error: data.message || 'Registration failed.' }
       }
 
-      // Create new user
-      const newUser = {
-        id: Date.now().toString(),
-        username,
-        password // In a real app, you'd hash this
-      }
-
-      // Save user to localStorage
-      users.push(newUser)
-      localStorage.setItem('workout-tracker-users', JSON.stringify(users))
-
-      mobileConsole.log('User registered:', newUser.username)
+      mobileConsole.log('User registered:', username)
       return { success: true }
     } catch (error) {
       mobileConsole.error('Registration error:', error)
