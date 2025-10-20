@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next"
 import "./globals.css"
 import Providers from "./providers"
+import MobileConsoleInit from "./components/MobileConsoleInit"
 
 export const metadata: Metadata = {
   title: "Workout Tracker Pro",
@@ -20,6 +21,7 @@ export default function RootLayout({
     <html lang="en">
       <body>
         <Providers>{children}</Providers>
+        <MobileConsoleInit />
       </body>
     </html>
   )

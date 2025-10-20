@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { mobileConsole } from "@/utils/mobileConsole"
 
 export default function LoginPage() {
   const [username, setUsername] = useState("")
@@ -15,14 +16,14 @@ export default function LoginPage() {
 
   // Debug info for mobile production
   useEffect(() => {
-    console.log("Login page mounted:", { 
+    mobileConsole.log("Login page mounted:", { 
       userAgent: typeof window !== 'undefined' ? window.navigator.userAgent : 'SSR',
       timestamp: new Date().toISOString(),
       isMobile: typeof window !== 'undefined' ? /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(window.navigator.userAgent) : false
     })
 
     return () => {
-      console.log("Login page unmounted:", { timestamp: new Date().toISOString() })
+      mobileConsole.log("Login page unmounted:", { timestamp: new Date().toISOString() })
     }
   }, [])
 
@@ -30,7 +31,7 @@ export default function LoginPage() {
     e.preventDefault()
     setError("")
 
-    console.log("Login attempt:", { username, timestamp: new Date().toISOString() })
+    mobileConsole.log("Login attempt:", { username, timestamp: new Date().toISOString() })
 
     const result = await signIn("credentials", {
       redirect: false,
@@ -39,11 +40,11 @@ export default function LoginPage() {
     })
 
     if (result?.error) {
-      console.error("Login failed:", result.error)
+      mobileConsole.error("Login failed:", result.error)
       setError("Invalid username or password.")
-      console.log("Error state set:", "Invalid username or password.")
+      mobileConsole.log("Error state set:", "Invalid username or password.")
     } else {
-      console.log("Login successful:", { username, timestamp: new Date().toISOString() })
+      mobileConsole.log("Login successful:", { username, timestamp: new Date().toISOString() })
       router.push("/")
     }
   }
@@ -56,7 +57,7 @@ export default function LoginPage() {
         </CardHeader>
         <CardContent className="p-4 sm:p-6 pt-0">
           <form onSubmit={(e) => {
-            console.log("Login form submitted")
+            mobileConsole.log("Login form submitted")
             handleSubmit(e)
           }} className="space-y-4">
             <div>
@@ -65,7 +66,7 @@ export default function LoginPage() {
                 type="text"
                 value={username}
                 onChange={(e) => {
-                  console.log("Username input changed:", e.target.value)
+                  mobileConsole.log("Username input changed:", e.target.value)
                   setUsername(e.target.value)
                 }}
                 placeholder="Enter your username"
@@ -79,7 +80,7 @@ export default function LoginPage() {
                 type="password"
                 value={password}
                 onChange={(e) => {
-                  console.log("Password input changed:", e.target.value.length > 0 ? "[REDACTED]" : "")
+                  mobileConsole.log("Password input changed:", e.target.value.length > 0 ? "[REDACTED]" : "")
                   setPassword(e.target.value)
                 }}
                 placeholder="Enter your password"

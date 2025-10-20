@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 import bcrypt from "bcryptjs"
 import { findUserByUsername, createUser } from "@/lib/users"
+import { mobileConsole } from "@/utils/mobileConsole"
 
 export async function POST(request: Request) {
   try {
@@ -20,7 +21,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ message: "User registered successfully" }, { status: 201 })
   } catch (error) {
-    console.error("Registration error:", error)
+    mobileConsole.error("Registration error:", error)
     return NextResponse.json({ message: "Internal server error" }, { status: 500 })
   }
 }
