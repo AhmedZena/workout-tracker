@@ -31,12 +31,12 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-4">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-2 sm:p-4">
       <Card className="w-full max-w-md bg-slate-800/50 border-slate-700 text-white">
-        <CardHeader>
-          <CardTitle className="text-center text-3xl font-bold">Login</CardTitle>
+        <CardHeader className="p-4 sm:p-6">
+          <CardTitle className="text-center text-2xl sm:text-3xl font-bold">Login</CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-4 sm:p-6 pt-0">
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label className="text-sm font-medium text-slate-300 mb-2 block">Username</label>
@@ -45,7 +45,7 @@ export default function LoginPage() {
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 placeholder="Enter your username"
-                className="bg-slate-700 border-slate-600 text-white"
+                className="bg-slate-700 border-slate-600 text-white text-sm"
                 required
               />
             </div>
@@ -56,12 +56,12 @@ export default function LoginPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Enter your password"
-                className="bg-slate-700 border-slate-600 text-white"
+                className="bg-slate-700 border-slate-600 text-white text-sm"
                 required
               />
             </div>
             {error && <p className="text-red-400 text-sm text-center">{error}</p>}
-            <Button type="submit" className="w-full bg-purple-600 hover:bg-purple-700">
+            <Button type="submit" className="w-full bg-purple-600 hover:bg-purple-700 text-sm sm:text-base">
               Login
             </Button>
           </form>
