@@ -4,9 +4,9 @@ const nextConfig: NextConfig = {
   /* config options here */
   compiler: {
     // Remove console statements in production except for errors
-    removeConsole: process.env.NODE_ENV === 'production' ? {
+    removeConsole: {
       exclude: ['error']
-    } : false,
+    },
   },
 };
 

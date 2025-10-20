@@ -9,8 +9,8 @@ import { Badge } from '@/components/ui/badge'
 import { Textarea } from '@/components/ui/textarea'
 import { Trash2, Plus, TrendingUp, Calendar, Dumbbell, Target } from 'lucide-react'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
-import { useSession, signOut } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
+import { useAuth } from '@/contexts/AuthContext'
 import { mobileConsole } from '@/utils/mobileConsole'
 
 interface Workout {
@@ -36,14 +36,14 @@ interface WorkoutForm {
 }
 
 export default function Home() {
-  const { data: session, status } = useSession()
+  const { user, logout, isLoading } = useAuth()
   const router = useRouter()
 
   useEffect(() => {
-    if (status === 'unauthenticated') {
+    if (!isLoading && !user) {
       router.push('/login')
     }
-  }, [status, router])
+  }, [isLoading, user, router])
 
   const [workouts, setWorkouts] = useState<Workout[]>([])
   const [formData, setFormData] = useState<WorkoutForm>({
@@ -60,9 +60,9 @@ export default function Home() {
 
   // Load workouts from localStorage on component mount
   useEffect(() => {
-    if (session?.user?.id) {
+    if (user?.id) {
       try {
-        const savedWorkouts = localStorage.getItem(`workouts-${session.user.id}`)
+        const savedWorkouts = localStorage.getItem(`workouts-${user.id}`)
         if (savedWorkouts) {
           setWorkouts(JSON.parse(savedWorkouts))
         }
@@ -70,18 +70,18 @@ export default function Home() {
         mobileConsole.error('Failed to load workouts from localStorage:', error)
       }
     }
-  }, [session])
+  }, [user])
 
   // Save workouts to localStorage whenever workouts change
   useEffect(() => {
-    if (session?.user?.id) {
+    if (user?.id) {
       try {
-        localStorage.setItem(`workouts-${session.user.id}`, JSON.stringify(workouts))
+        localStorage.setItem(`workouts-${user.id}`, JSON.stringify(workouts))
       } catch (error) {
         mobileConsole.error('Failed to save workouts to localStorage:', error)
       }
     }
-  }, [workouts, session])
+  }, [workouts, user])
 
   const showMessage = (text: string, type: 'success' | 'error' = 'success') => {
     setMessage({ text, type })
@@ -173,7 +173,7 @@ export default function Home() {
   const personalRecords = getPersonalRecords()
   const progressData = getProgressData()
 
-  if (status === 'loading') {
+  if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-4">
         <p className="text-white text-xl">Loading...</p>
@@ -191,10 +191,10 @@ export default function Home() {
             <span className="break-words">Workout Tracker Pro</span>
           </h1>
           <p className="text-slate-300 text-sm sm:text-base">Track your progress and achieve your fitness goals</p>
-          {session && (
+          {user && (
             <div className="mt-4">
-              <p className="text-slate-400 text-sm sm:text-base">Welcome, {session.user.name}!</p>
-              <Button onClick={() => signOut()} className="mt-2 bg-red-600 hover:bg-red-700 text-sm sm:text-base">
+              <p className="text-slate-400 text-sm sm:text-base">Welcome, {user.name}!</p>
+              <Button onClick={() => logout()} className="mt-2 bg-red-600 hover:bg-red-700 text-sm sm:text-base">
                 Sign Out
               </Button>
             </div>

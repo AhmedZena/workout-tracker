@@ -6,12 +6,15 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { mobileConsole } from "@/utils/mobileConsole"
+import { useAuth } from "@/contexts/AuthContext"
 
 export default function RegisterPage() {
   const [username, setUsername] = useState("")
   const [password, setPassword] = useState("")
   const [error, setError] = useState("")
+  const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
+  const { register, user } = useAuth()
 
   // Debug info for mobile production
   useEffect(() => {
@@ -26,28 +29,32 @@ export default function RegisterPage() {
     }
   }, [])
 
+  // Redirect if already logged in
+  useEffect(() => {
+    if (user) {
+      router.push("/")
+    }
+  }, [user, router])
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError("")
+    setIsLoading(true)
 
     mobileConsole.log("Registration attempt:", { username, timestamp: new Date().toISOString() })
 
-    const response = await fetch("/api/register", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ username, password }),
-    })
+    const result = await register(username, password)
 
-    const data = await response.json()
-
-    if (response.ok) {
+    if (!result.success) {
+      mobileConsole.error("Registration failed:", result.error)
+      setError(result.error || "Registration failed.")
+      mobileConsole.log("Error state set:", result.error)
+    } else {
       mobileConsole.log("Registration successful:", { username, timestamp: new Date().toISOString() })
       router.push("/login")
-    } else {
-      mobileConsole.error("Registration failed:", data.message || "Registration failed.")
-      setError(data.message || "Registration failed.")
-      mobileConsole.log("Error state set:", data.message || "Registration failed.")
     }
+
+    setIsLoading(false)
   }
 
   return (
@@ -90,8 +97,12 @@ export default function RegisterPage() {
               />
             </div>
             {error && <p className="text-red-400 text-sm text-center">{error}</p>}
-            <Button type="submit" className="w-full bg-purple-600 hover:bg-purple-700 text-sm sm:text-base">
-              Register
+            <Button 
+              type="submit" 
+              disabled={isLoading}
+              className="w-full bg-purple-600 hover:bg-purple-700 text-sm sm:text-base disabled:opacity-50"
+            >
+              {isLoading ? "Registering..." : "Register"}
             </Button>
           </form>
         </CardContent>

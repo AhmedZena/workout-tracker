@@ -1,18 +1,20 @@
 'use client'
 
-import { signIn } from "next-auth/react"
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { mobileConsole } from "@/utils/mobileConsole"
+import { useAuth } from "@/contexts/AuthContext"
 
 export default function LoginPage() {
   const [username, setUsername] = useState("")
   const [password, setPassword] = useState("")
   const [error, setError] = useState("")
+  const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
+  const { login, user } = useAuth()
 
   // Debug info for mobile production
   useEffect(() => {
@@ -27,26 +29,32 @@ export default function LoginPage() {
     }
   }, [])
 
+  // Redirect if already logged in
+  useEffect(() => {
+    if (user) {
+      router.push("/")
+    }
+  }, [user, router])
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError("")
+    setIsLoading(true)
 
     mobileConsole.log("Login attempt:", { username, timestamp: new Date().toISOString() })
 
-    const result = await signIn("credentials", {
-      redirect: false,
-      username,
-      password,
-    })
+    const result = await login(username, password)
 
-    if (result?.error) {
+    if (!result.success) {
       mobileConsole.error("Login failed:", result.error)
-      setError("Invalid username or password.")
-      mobileConsole.log("Error state set:", "Invalid username or password.")
+      setError(result.error || "Login failed.")
+      mobileConsole.log("Error state set:", result.error)
     } else {
       mobileConsole.log("Login successful:", { username, timestamp: new Date().toISOString() })
       router.push("/")
     }
+
+    setIsLoading(false)
   }
 
   return (
@@ -89,8 +97,12 @@ export default function LoginPage() {
               />
             </div>
             {error && <p className="text-red-400 text-sm text-center">{error}</p>}
-            <Button type="submit" className="w-full bg-purple-600 hover:bg-purple-700 text-sm sm:text-base">
-              Login
+            <Button 
+              type="submit" 
+              disabled={isLoading}
+              className="w-full bg-purple-600 hover:bg-purple-700 text-sm sm:text-base disabled:opacity-50"
+            >
+              {isLoading ? "Logging in..." : "Login"}
             </Button>
           </form>
         </CardContent>
