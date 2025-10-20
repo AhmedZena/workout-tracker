@@ -24,3 +24,31 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* Responsive improvements */
+@media (max-width: 640px) {
+  .text-responsive {
+    font-size: 0.875rem;
+  }
+  
+  .p-responsive {
+    padding: 0.75rem;
+  }
+  
+  .gap-responsive {
+    gap: 0.75rem;
+  }
+}
+
+/* Ensure proper scrolling on mobile */
+.overflow-x-auto {
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Better touch targets for mobile */
+@media (max-width: 768px) {
+  button, [role="button"] {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}
