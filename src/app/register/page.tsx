@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { mobileConsole } from "@/utils/mobileConsole"
 
 export default function RegisterPage() {
   const [username, setUsername] = useState("")
@@ -14,14 +15,14 @@ export default function RegisterPage() {
 
   // Debug info for mobile production
   useEffect(() => {
-    console.log("Register page mounted:", { 
+    mobileConsole.log("Register page mounted:", { 
       userAgent: typeof window !== 'undefined' ? window.navigator.userAgent : 'SSR',
       timestamp: new Date().toISOString(),
       isMobile: typeof window !== 'undefined' ? /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(window.navigator.userAgent) : false
     })
 
     return () => {
-      console.log("Register page unmounted:", { timestamp: new Date().toISOString() })
+      mobileConsole.log("Register page unmounted:", { timestamp: new Date().toISOString() })
     }
   }, [])
 
@@ -29,7 +30,7 @@ export default function RegisterPage() {
     e.preventDefault()
     setError("")
 
-    console.log("Registration attempt:", { username, timestamp: new Date().toISOString() })
+    mobileConsole.log("Registration attempt:", { username, timestamp: new Date().toISOString() })
 
     const response = await fetch("/api/register", {
       method: "POST",
@@ -40,12 +41,12 @@ export default function RegisterPage() {
     const data = await response.json()
 
     if (response.ok) {
-      console.log("Registration successful:", { username, timestamp: new Date().toISOString() })
+      mobileConsole.log("Registration successful:", { username, timestamp: new Date().toISOString() })
       router.push("/login")
     } else {
-      console.error("Registration failed:", data.message || "Registration failed.")
+      mobileConsole.error("Registration failed:", data.message || "Registration failed.")
       setError(data.message || "Registration failed.")
-      console.log("Error state set:", data.message || "Registration failed.")
+      mobileConsole.log("Error state set:", data.message || "Registration failed.")
     }
   }
 
@@ -57,7 +58,7 @@ export default function RegisterPage() {
         </CardHeader>
         <CardContent className="p-4 sm:p-6 pt-0">
           <form onSubmit={(e) => {
-            console.log("Register form submitted")
+            mobileConsole.log("Register form submitted")
             handleSubmit(e)
           }} className="space-y-4">
             <div>
@@ -66,7 +67,7 @@ export default function RegisterPage() {
                 type="text"
                 value={username}
                 onChange={(e) => {
-                  console.log("Username input changed:", e.target.value)
+                  mobileConsole.log("Username input changed:", e.target.value)
                   setUsername(e.target.value)
                 }}
                 placeholder="Choose a username"
@@ -80,7 +81,7 @@ export default function RegisterPage() {
                 type="password"
                 value={password}
                 onChange={(e) => {
-                  console.log("Password input changed:", e.target.value.length > 0 ? "[REDACTED]" : "")
+                  mobileConsole.log("Password input changed:", e.target.value.length > 0 ? "[REDACTED]" : "")
                   setPassword(e.target.value)
                 }}
                 placeholder="Choose a password"

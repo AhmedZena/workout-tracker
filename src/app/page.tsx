@@ -11,6 +11,7 @@ import { Trash2, Plus, TrendingUp, Calendar, Dumbbell, Target } from 'lucide-rea
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 import { useSession, signOut } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
+import { mobileConsole } from '@/utils/mobileConsole'
 
 interface Workout {
   id: number
@@ -66,7 +67,7 @@ export default function Home() {
           setWorkouts(JSON.parse(savedWorkouts))
         }
       } catch (error) {
-        console.error('Failed to load workouts from localStorage:', error)
+        mobileConsole.error('Failed to load workouts from localStorage:', error)
       }
     }
   }, [session])
@@ -77,7 +78,7 @@ export default function Home() {
       try {
         localStorage.setItem(`workouts-${session.user.id}`, JSON.stringify(workouts))
       } catch (error) {
-        console.error('Failed to save workouts to localStorage:', error)
+        mobileConsole.error('Failed to save workouts to localStorage:', error)
       }
     }
   }, [workouts, session])
