@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
@@ -12,9 +12,24 @@ export default function RegisterPage() {
   const [error, setError] = useState("")
   const router = useRouter()
 
+  // Debug info for mobile production
+  useEffect(() => {
+    console.log("Register page mounted:", { 
+      userAgent: typeof window !== 'undefined' ? window.navigator.userAgent : 'SSR',
+      timestamp: new Date().toISOString(),
+      isMobile: typeof window !== 'undefined' ? /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(window.navigator.userAgent) : false
+    })
+
+    return () => {
+      console.log("Register page unmounted:", { timestamp: new Date().toISOString() })
+    }
+  }, [])
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError("")
+
+    console.log("Registration attempt:", { username, timestamp: new Date().toISOString() })
 
     const response = await fetch("/api/register", {
       method: "POST",
@@ -25,9 +40,12 @@ export default function RegisterPage() {
     const data = await response.json()
 
     if (response.ok) {
+      console.log("Registration successful:", { username, timestamp: new Date().toISOString() })
       router.push("/login")
     } else {
+      console.error("Registration failed:", data.message || "Registration failed.")
       setError(data.message || "Registration failed.")
+      console.log("Error state set:", data.message || "Registration failed.")
     }
   }
 
@@ -38,13 +56,19 @@ export default function RegisterPage() {
           <CardTitle className="text-center text-2xl sm:text-3xl font-bold">Register</CardTitle>
         </CardHeader>
         <CardContent className="p-4 sm:p-6 pt-0">
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={(e) => {
+            console.log("Register form submitted")
+            handleSubmit(e)
+          }} className="space-y-4">
             <div>
               <label className="text-sm font-medium text-slate-300 mb-2 block">Username</label>
               <Input
                 type="text"
                 value={username}
-                onChange={(e) => setUsername(e.target.value)}
+                onChange={(e) => {
+                  console.log("Username input changed:", e.target.value)
+                  setUsername(e.target.value)
+                }}
                 placeholder="Choose a username"
                 className="bg-slate-700 border-slate-600 text-white text-sm"
                 required
@@ -55,7 +79,10 @@ export default function RegisterPage() {
               <Input
                 type="password"
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={(e) => {
+                  console.log("Password input changed:", e.target.value.length > 0 ? "[REDACTED]" : "")
+                  setPassword(e.target.value)
+                }}
                 placeholder="Choose a password"
                 className="bg-slate-700 border-slate-600 text-white text-sm"
                 required
