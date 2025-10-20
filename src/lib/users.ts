@@ -7,7 +7,8 @@ export interface DBUser {
 }
 
 export function findUserByUsername(username: string): DBUser | undefined {
-  return db.prepare("SELECT * FROM users WHERE username = ?").get(username) as DBUser | undefined
+  const stmt = db.prepare("SELECT * FROM users WHERE username = ?")
+  return stmt.get(username) as DBUser | undefined
 }
 
 export function createUser(username: string, passwordHash: string): void {
