@@ -59,18 +59,26 @@ export default function Home() {
 
   // Load workouts from localStorage on component mount
   useEffect(() => {
-    if (session) {
-      const savedWorkouts = localStorage.getItem(`workouts-${session.user.id}`)
-      if (savedWorkouts) {
-        setWorkouts(JSON.parse(savedWorkouts))
+    if (session?.user?.id) {
+      try {
+        const savedWorkouts = localStorage.getItem(`workouts-${session.user.id}`)
+        if (savedWorkouts) {
+          setWorkouts(JSON.parse(savedWorkouts))
+        }
+      } catch (error) {
+        console.error('Failed to load workouts from localStorage:', error)
       }
     }
   }, [session])
 
   // Save workouts to localStorage whenever workouts change
   useEffect(() => {
-    if (session) {
-      localStorage.setItem(`workouts-${session.user.id}`, JSON.stringify(workouts))
+    if (session?.user?.id) {
+      try {
+        localStorage.setItem(`workouts-${session.user.id}`, JSON.stringify(workouts))
+      } catch (error) {
+        console.error('Failed to save workouts to localStorage:', error)
+      }
     }
   }, [workouts, session])
 
@@ -140,12 +148,21 @@ export default function Home() {
       }))
   }
 
-  // Get personal records
+  // Calculate 1RM using Epley formula: 1RM = weight * (1 + reps/30)
+  const calculateOneRepMax = (weight: number, reps: number): number => {
+    if (reps <= 0) return 0
+    if (reps === 1) return weight
+    return weight * (1 + reps / 30)
+  }
+
+  // Get personal records based on calculated 1RM
   const getPersonalRecords = (): Workout[] => {
     const records: Record<string, Workout> = {}
     workouts.forEach(workout => {
-      const { exercise, weight } = workout
-      if (!records[exercise] || weight > records[exercise].weight) {
+      const { exercise, weight, reps } = workout
+      const oneRepMax = calculateOneRepMax(weight, reps)
+      
+      if (!records[exercise] || oneRepMax > calculateOneRepMax(records[exercise].weight, records[exercise].reps)) {
         records[exercise] = workout
       }
     })
@@ -317,7 +334,7 @@ export default function Home() {
                         <p className="text-sm text-slate-400">{record.date}</p>
                       </div>
                       <Badge variant="secondary" className="bg-purple-600/20 text-purple-300">
-                        {record.weight}kg
+                        {record.weight}kg × {record.reps} ({Math.round(calculateOneRepMax(record.weight, record.reps))}kg 1RM)
                       </Badge>
                     </div>
                   ))}
