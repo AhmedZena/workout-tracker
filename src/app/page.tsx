@@ -44,6 +44,25 @@ export default function Home() {
     }
   }, [status, router])
 
+  // Test mobile console functionality
+  useEffect(() => {
+    console.log('🚀 Workout Tracker Pro loaded successfully!')
+    console.log('📱 Mobile Console is active - you can see this on mobile devices')
+    console.log('💪 Ready to track your workouts!')
+    
+    // Test different console methods
+    console.info('ℹ️ This is an info message')
+    console.warn('⚠️ This is a warning message')
+    console.error('❌ This is an error message (for testing)')
+    
+    // Test console.table
+    console.table([
+      { exercise: 'Bench Press', sets: 3, reps: 8, weight: 80 },
+      { exercise: 'Squats', sets: 4, reps: 10, weight: 100 },
+      { exercise: 'Deadlifts', sets: 3, reps: 5, weight: 120 }
+    ])
+  }, [])
+
   const [workouts, setWorkouts] = useState<Workout[]>([])
   const [formData, setFormData] = useState<WorkoutForm>({
     date: new Date().toISOString().split('T')[0],
