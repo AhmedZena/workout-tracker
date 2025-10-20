@@ -112,6 +112,7 @@ export default function Home() {
 
   const addWorkout = () => {
     if (!formData.date || !formData.day || !formData.exercise || !formData.sets || !formData.reps || !formData.weight) {
+      console.warn('⚠️ Workout form validation failed - missing required fields')
       showMessage('Please fill out all required fields.', 'error')
       return
     }
@@ -124,6 +125,9 @@ export default function Home() {
       weight: parseFloat(formData.weight)
     }
 
+    console.log('✅ New workout added:', newWorkout)
+    console.log('📊 Total workouts:', workouts.length + 1)
+    
     setWorkouts(prev => [...prev, newWorkout])
     setFormData({
       date: new Date().toISOString().split('T')[0],
@@ -138,6 +142,8 @@ export default function Home() {
   }
 
   const deleteWorkout = (id: number) => {
+    const workoutToDelete = workouts.find(w => w.id === id)
+    console.log('🗑️ Deleting workout:', workoutToDelete)
     setWorkouts(prev => prev.filter(workout => workout.id !== id))
     showMessage('Workout deleted successfully.')
   }
